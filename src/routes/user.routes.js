@@ -1,15 +1,24 @@
 const express = require('express');
 const userController = require('./../controllers/user.controller');
 
+//MIDDLEWARES
+const validationMiddleware = require('./../middlewares/validations.middleware');
+const userMiddleware = require('./../middlewares/user.middleware');
+const authMiddleware = require('./../middlewares/auth.middleware');
+
 const router = express.Router();
 
-//TODO: DEFINIR ENDPOINTS
 router
   .route('/')
-  .get(userController.findAllUsers)
-  .post(userController.createUser);
+  .get(authMiddleware.protect, userController.findAllUsers)
+  .post(validationMiddleware.createUserValidation, userController.createUser);
+
+router.post('/login', userMiddleware.existUserEmail, userController.login);
+
+router.use(authMiddleware.protect);
 
 router
+  .use('/:id', userMiddleware.existUser)
   .route('/:id')
   .get(userController.findUser)
   .patch(userController.update)
