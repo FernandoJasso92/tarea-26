@@ -1,6 +1,8 @@
 const User = require('../models/user.model');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.existUser = async (req, res, next) => {
+exports.existUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
   const user = await User.findOne({
@@ -10,17 +12,14 @@ exports.existUser = async (req, res, next) => {
     },
   });
   if (!user) {
-    return res.status(404).json({
-      status: 'error',
-      message: `User with id: ${id} not found!`,
-    });
+    return next(new AppError(`User with id: ${id} not found!`, 404));
   }
 
   req.user = user;
   next();
-};
+});
 
-exports.existUserEmail = async (req, res, next) => {
+exports.existUserEmail = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
   const user = await User.findOne({
@@ -30,12 +29,9 @@ exports.existUserEmail = async (req, res, next) => {
     },
   });
   if (!user) {
-    return res.status(404).json({
-      status: 'error',
-      message: `User with email: ${email} already exists!`,
-    });
+    return next(new AppError(`User with email: ${email} not found!`, 404));
   }
 
   req.user = user;
   next();
-};
+});

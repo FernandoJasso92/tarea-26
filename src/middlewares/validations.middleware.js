@@ -1,17 +1,16 @@
 const { validationResult, body } = require('express-validator');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-const validateFields = (req, res, next) => {
+const validateFields = catchAsync(async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      status: 'error',
-      errors: errors.mapped(),
-    });
+    return next(new AppError('Invalid data', 400, errors.mapped()));
   }
 
   next();
-};
+});
 
 exports.createLoginValidation = [
   body('email')
